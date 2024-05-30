@@ -1,10 +1,12 @@
 extends Control
 
+enum READY_STATE {NOT_READY,READY}
 var IP_ADDRESS = "localhost"
 var PORT = 8910
 var MAX_NUMBER_OF_PLAYERS = 2
 var peer:ENetMultiplayerPeer
 @export var player_name_input_field:LineEdit
+@export var player_list:VBoxContainer
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -13,7 +15,10 @@ func _ready():
 	multiplayer.peer_disconnected.connect(_on_peer_disconnected)
 	multiplayer.connected_to_server.connect(_on_connected_to_server)
 	multiplayer.connection_failed.connect(_on_connection_failed)
-	
+	print("UI ready ran")
+	if OS.has_feature("dedicated_server"):
+		host_game()
+		
 
 # called on server and client when a peer connects
 # we dont really need this function for this example.
@@ -50,7 +55,32 @@ func start_game():
 	var scene:PackedScene = load("res://scenes/main/main.tscn") as PackedScene
 	get_tree().root.add_child(scene.instantiate())
 	hide()
-
+	
+	
+@rpc("any_peer","call_local","reliable")
+func ready_up(player_id:int):
+	#assume all players are ready to start the game
+	var all_players_are_ready = true
+	
+	#change the ready state of the player
+	GameManager.Players[player_id].Ready = READY_STATE.READY
+	
+	#update the label to show that player is ready
+	var player_labels:Array[Node] = player_list.get_children()
+	for label:Label in player_labels:
+		if label.name == str(player_id):
+			label.text = GameManager.Players[player_id].Name + ": Ready" 	
+	
+	#actually determine if all players are ready	
+	for id in GameManager.Players:
+		if GameManager.Players[id].Ready == READY_STATE.NOT_READY:
+			all_players_are_ready = false
+	
+	#start the game if all players are ready
+	if all_players_are_ready:
+		start_game.rpc()
+	
+	
 # technically anyone (client or server) can call this function but it will NOT run locally. it will only run remotely for all other peers.
 # The way everything is currently implemented, a client makes an RPC call to this function but the client specifies that it only wants the RPC 
 # function to run specifically on the server by calling send_player_data.rpc_id(1,id,name)  (see line 34 for code example)
@@ -61,8 +91,14 @@ func send_player_data(ID,Name):
 	if !GameManager.Players.has(ID):
 		GameManager.Players[ID]= {
 			"ID":ID,
-			"Name":Name
+			"Name":Name,
+			"Ready":READY_STATE.NOT_READY
 		}
+		if !multiplayer.is_server():
+			var label:Label = Label.new()
+			label.text= Name + ": Not Ready" 
+			label.name = str(ID)
+			player_list.add_child(label)
 	
 	#if we are the server, then call this RPC function on all other clients, passing new player info to all clients
 	if multiplayer.is_server():
@@ -71,9 +107,7 @@ func send_player_data(ID,Name):
 			print()
 
 		
-
-#called when user presses the host button
-func _on_host_button_pressed():
+func host_game():
 	# we create a new peer object
 	peer = ENetMultiplayerPeer.new()
 	
@@ -87,11 +121,6 @@ func _on_host_button_pressed():
 	
 	_who_created_this_message()
 	print("waiting for other players" + "\n")
-	
-	# we call the function directly here. Not an RPC call.
-	# This adds ourselves (the server) to the list of players
-	# only add this here if you are using P2P networking
-	send_player_data(multiplayer.get_unique_id(),player_name_input_field.text)
 
 
 # called when user pressed the join button
@@ -105,10 +134,9 @@ func _on_join_button_pressed():
 
 
 # called when user pressed the start game button
-func _on_start_game_button_pressed():
+func _on_ready_button_pressed():
 	# we make an rpc call on all players (server and clients) to create the main game scene
-	start_game.rpc()
-	pass # Replace with function body.
+	ready_up.rpc(multiplayer.get_unique_id())
 	
 # utility function just so we can see who (server or clients) is printing the debug statements
 func _who_created_this_message():
