@@ -1,0 +1,29 @@
+[gd_scene load_steps=4 format=3 uid="uid://doaafyc0gom0t"]
+
+[ext_resource type="Script" path="res://scenes/player/player.gd" id="1_0juk0"]
+[ext_resource type="Texture2D" uid="uid://8bptqdq5e12v" path="res://icon.svg" id="1_bx60x"]
+
+[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_tovca"]
+properties/0/path = NodePath(".:position")
+properties/0/spawn = true
+properties/0/replication_mode = 1
+properties/1/path = NodePath(".:modulate")
+properties/1/spawn = true
+properties/1/replication_mode = 1
+
+[node name="Player" type="Node2D" node_paths=PackedStringArray("MultiplayerSync", "PlayerNameLabel")]
+script = ExtResource("1_0juk0")
+MultiplayerSync = NodePath("MultiplayerSynchronizer")
+PlayerNameLabel = NodePath("player_name_label")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("1_bx60x")
+
+[node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
+replication_config = SubResource("SceneReplicationConfig_tovca")
+
+[node name="player_name_label" type="Label" parent="."]
+offset_left = -22.0
+offset_top = -94.0
+offset_right = 18.0
+offset_bottom = -71.0

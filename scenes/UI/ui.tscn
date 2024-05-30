@@ -1,0 +1,59 @@
+[gd_scene load_steps=2 format=3 uid="uid://bvlg732yscreh"]
+
+[ext_resource type="Script" path="res://scenes/UI/ui.gd" id="1_n4ulp"]
+
+[node name="UI" type="Control" node_paths=PackedStringArray("player_name_input_field")]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_n4ulp")
+player_name_input_field = NodePath("player_name_input_field")
+
+[node name="host_button" type="Button" parent="."]
+layout_mode = 0
+offset_left = 8.0
+offset_top = 8.0
+offset_right = 206.0
+offset_bottom = 90.0
+text = "Host
+"
+
+[node name="join_button" type="Button" parent="."]
+layout_mode = 0
+offset_left = 232.0
+offset_top = 8.0
+offset_right = 430.0
+offset_bottom = 90.0
+text = "Join
+"
+
+[node name="start_game_button" type="Button" parent="."]
+layout_mode = 0
+offset_left = 464.0
+offset_top = 8.0
+offset_right = 662.0
+offset_bottom = 90.0
+text = "Start Game
+"
+
+[node name="player_name_input_field" type="LineEdit" parent="."]
+layout_mode = 0
+offset_left = 64.0
+offset_top = 104.0
+offset_right = 664.0
+offset_bottom = 146.0
+
+[node name="Label" type="Label" parent="."]
+layout_mode = 0
+offset_left = 7.0
+offset_top = 115.0
+offset_right = 54.0
+offset_bottom = 138.0
+text = "Name"
+
+[connection signal="pressed" from="host_button" to="." method="_on_host_button_pressed"]
+[connection signal="pressed" from="join_button" to="." method="_on_join_button_pressed"]
+[connection signal="pressed" from="start_game_button" to="." method="_on_start_game_button_pressed"]
