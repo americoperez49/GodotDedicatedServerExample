@@ -17,7 +17,11 @@ config/icon="res://icon.svg"
 
 [autoload]
 
-GameManager="*res://GameManager.gd"
+GameManager="*res://Globals/GameManager.gd"
+Server="*res://Globals/Server.gd"
+Client="*res://Globals/Client.gd"
+Utils="*res://Globals/Utils.gd"
+EventBus="*res://Globals/EventBus.gd"
 
 [input]
 

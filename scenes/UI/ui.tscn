@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" path="res://scenes/UI/ui.gd" id="1_n4ulp"]
 
-[node name="UI" type="Control" node_paths=PackedStringArray("player_name_input_field", "player_list")]
+[node name="UI" type="Control" node_paths=PackedStringArray("player_name_input_field", "player_list", "ready_button")]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -12,6 +12,7 @@ grow_vertical = 2
 script = ExtResource("1_n4ulp")
 player_name_input_field = NodePath("player_name_input_field")
 player_list = NodePath("PlayerList")
+ready_button = NodePath("ready_button")
 
 [node name="join_button" type="Button" parent="."]
 layout_mode = 0
@@ -28,6 +29,7 @@ offset_left = 296.0
 offset_top = 8.0
 offset_right = 494.0
 offset_bottom = 90.0
+disabled = true
 text = "Ready"
 
 [node name="player_name_input_field" type="LineEdit" parent="."]
