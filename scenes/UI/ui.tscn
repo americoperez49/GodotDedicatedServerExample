@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" path="res://scenes/UI/ui.gd" id="1_n4ulp"]
 
-[node name="UI" type="Control" node_paths=PackedStringArray("player_name_input_field", "player_list", "ready_button")]
+[node name="UI" type="Control" node_paths=PackedStringArray("player_name_input_field", "player_list", "join_button", "ready_button")]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -12,25 +12,25 @@ grow_vertical = 2
 script = ExtResource("1_n4ulp")
 player_name_input_field = NodePath("player_name_input_field")
 player_list = NodePath("PlayerList")
-ready_button = NodePath("ready_button")
+join_button = NodePath("HBoxContainer/join_button")
+ready_button = NodePath("HBoxContainer/ready_button")
 
-[node name="join_button" type="Button" parent="."]
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
 layout_mode = 0
-offset_left = 64.0
-offset_top = 8.0
-offset_right = 262.0
-offset_bottom = 90.0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="join_button" type="Button" parent="HBoxContainer"]
+custom_minimum_size = Vector2(38, 40)
+layout_mode = 2
 text = "Join
 "
 
-[node name="ready_button" type="Button" parent="."]
-layout_mode = 0
-offset_left = 296.0
-offset_top = 8.0
-offset_right = 494.0
-offset_bottom = 90.0
+[node name="ready_button" type="Button" parent="HBoxContainer"]
+custom_minimum_size = Vector2(38, 40)
+layout_mode = 2
 disabled = true
-text = "Ready"
+text = "Ready Up"
 
 [node name="player_name_input_field" type="LineEdit" parent="."]
 layout_mode = 0
@@ -54,5 +54,5 @@ offset_top = 200.0
 offset_right = 112.0
 offset_bottom = 336.0
 
-[connection signal="pressed" from="join_button" to="." method="_on_join_button_pressed"]
-[connection signal="pressed" from="ready_button" to="." method="_on_ready_button_pressed"]
+[connection signal="pressed" from="HBoxContainer/join_button" to="." method="_on_join_button_pressed"]
+[connection signal="pressed" from="HBoxContainer/ready_button" to="." method="_on_ready_button_pressed"]

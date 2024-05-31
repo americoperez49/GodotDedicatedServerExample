@@ -8,11 +8,12 @@ var peer:ENetMultiplayerPeer
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	if OS.has_feature("dedicated_server"):
-		host_game()
+		_host_game()
 		
 
+#region Private Functions
 
-func host_game():
+func _host_game():
 	# we create a new peer object
 	peer = ENetMultiplayerPeer.new()
 	
@@ -27,11 +28,10 @@ func host_game():
 	Utils._who_created_this_message(peer)
 	print("waiting for other players" + "\n")
 
-@rpc("authority","call_remote","reliable")
-func send_player_data_to_clients(players):
-	print("Player data arrived at client")
-	GameManager.Players = players
-	pass
+func _two_players_have_connected():
+	return GameManager.Players.size() == 2
+#endregion
+
 
 @rpc("any_peer","reliable")
 func gather_player_data(ID,Name):
@@ -41,16 +41,30 @@ func gather_player_data(ID,Name):
 		GameManager.Players[ID]= {
 			"ID":ID,
 			"Name":Name,
-			"Ready":GameManager.READY_STATE.NOT_READY,
+			"Ready":"Not Ready",
 			"Added_To_Scene":false
 		}
 		
 	if _two_players_have_connected():
-		print("letting clients know that two players have connected and that they can show the ready list and enable the ready button")
+		print("Letting clients know that two players have connected and that they can show the ready list and enable the ready button")
 		Client.all_players_have_connected.rpc(GameManager.Players)
 	pass
+
+@rpc("any_peer","call_remote","reliable")
+func client_has_ready_uped(player_id):
+	print("Sever has recieved ready up message from: " + str(player_id))
+	GameManager.Players[player_id].Ready = "Ready"
+	Client.ready_up_acknowledged.rpc(player_id)
 	
-func _two_players_have_connected():
-	return GameManager.Players.size() == 2
-
-
+	
+	var all_players_are_ready = true
+	for id in GameManager.Players:
+		if GameManager.Players[id].Ready == "Not Ready":
+			all_players_are_ready = false
+	
+	#start the game if all players are ready
+	if all_players_are_ready:
+		print("Server is starting the game")
+		Client.start_game.rpc()
+	pass
+	

@@ -2,6 +2,7 @@ extends Node
 
 signal client_has_connected_to_server
 signal all_players_have_connected_to_server
+signal player_ready_status_has_changed
 var peer:ENetMultiplayerPeer
 
 
@@ -25,12 +26,31 @@ func connect_client():
 func send_player_data_to_server(Name):
 	Server.gather_player_data.rpc_id(1,multiplayer.get_unique_id(),Name)
 
+
+func let_server_know_client_has_ready_uped():
+	Server.client_has_ready_uped.rpc_id(1,multiplayer.get_unique_id())
+
+
+@rpc("authority","call_remote","reliable")
+func ready_up_acknowledged(player_id):
+	GameManager.Players[player_id].Ready = "Ready"
+	player_ready_status_has_changed.emit(player_id)
+	pass
+
+
 @rpc("authority","call_remote","reliable")
 func all_players_have_connected(players):
 		GameManager.Players = players
 		all_players_have_connected_to_server.emit()
 
+#anyone (client or server) can call this function and it will run both locally for the peer who called it and remotely for all other peers
+@rpc("authority","call_local","reliable")		
+func start_game():
+	var scene:PackedScene = load("res://scenes/main/main.tscn") as PackedScene
+	get_tree().root.add_child(scene.instantiate())
+	GameManager.game_started.emit()
 	
+
 #only called on client when a peer has successfully established a connection to the server
 func _on_connected_to_server():
 	Utils._who_created_this_message(peer)

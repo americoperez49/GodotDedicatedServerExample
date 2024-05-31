@@ -18,7 +18,7 @@ func set_authority(id):
 	set_multiplayer_authority(id)
 	
 # Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta):
+func _process(_delta):
 	# we check to make sure that we have authority over the node.
 	# the server will only have authority over its resepdtive player
 	# the client will only have authority over their respective player

@@ -1,5 +1,4 @@
 extends Node
 
-enum READY_STATE {NOT_READY,READY}
-
+signal game_started
 var Players:Dictionary = {}
