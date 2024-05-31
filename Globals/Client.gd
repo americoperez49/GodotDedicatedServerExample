@@ -2,6 +2,7 @@ extends Node
 
 signal client_has_connected_to_server
 signal all_players_have_connected_to_server
+signal player_has_disconnected_from_server
 signal player_ready_status_has_changed
 var peer:ENetMultiplayerPeer
 
@@ -43,6 +44,14 @@ func all_players_have_connected(players):
 		GameManager.Players = players
 		all_players_have_connected_to_server.emit()
 
+@rpc("authority","call_remote","reliable")
+func player_has_disconnected(player_id):
+	GameManager.Players.erase(player_id)
+	var myself = multiplayer.get_unique_id()
+	GameManager.Players[myself].Ready="Not Ready"
+	player_has_disconnected_from_server.emit()
+	
+	
 #anyone (client or server) can call this function and it will run both locally for the peer who called it and remotely for all other peers
 @rpc("authority","call_local","reliable")		
 func start_game():

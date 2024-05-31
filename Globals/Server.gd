@@ -8,6 +8,7 @@ var peer:ENetMultiplayerPeer
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	if OS.has_feature("dedicated_server"):
+		multiplayer.peer_disconnected.connect(_on_peer_disconnected)
 		_host_game()
 		
 
@@ -31,7 +32,6 @@ func _host_game():
 func _two_players_have_connected():
 	return GameManager.Players.size() == 2
 #endregion
-
 
 @rpc("any_peer","reliable")
 func gather_player_data(ID,Name):
@@ -67,4 +67,9 @@ func client_has_ready_uped(player_id):
 		print("Server is starting the game")
 		Client.start_game.rpc()
 	pass
-	
+
+func _on_peer_disconnected(player_id:int):
+	GameManager.Players.erase(player_id)
+	Client.player_has_disconnected.rpc(player_id)
+	print("Player: " + str(player_id) + " has disconnected")
+	pass
